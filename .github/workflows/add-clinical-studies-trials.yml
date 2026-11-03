@@ -1,0 +1,30 @@
+name: Add clinical studies and trial support capability
+on:
+  push:
+    paths:
+      - '.github/workflows/add-clinical-studies-trials.yml'
+permissions:
+  contents: write
+jobs:
+  update-site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update clinical research capability and service wording
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          s=s.replace('<h3>Clinical cohorts</h3><p>Prospective human studies, biospecimen-linked data collection, multicentre coordination and quality review.</p><span class="tag">Clinical research</span>', '<h3>Clinical studies, cohorts & trial support</h3><p>Prospective human studies, biospecimen-linked research, protocol/CRF development, multicentre coordination, data-quality review and trial-related study documentation.</p><span class="tag">Clinical research</span>')
+          s=s.replace('<h3>Protocols, CRFs & study documentation</h3><p>Research protocols, case-report forms, study plans and multicentre clinical-research documentation.</p>', '<h3>Protocols, CRFs & clinical-study documentation</h3><p>Research protocols, case-report forms, study plans, multicentre clinical-research documentation and trial-support materials.</p>')
+          s=s.replace('<option>Study protocol / CRF / research documentation</option>', '<option>Clinical study / trial support / protocol / CRF</option>')
+          p.write_text(s)
+          PY
+      - name: Commit update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Clarify clinical studies and trial support experience" || exit 0
+          git push
