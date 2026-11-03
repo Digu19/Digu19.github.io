@@ -1,0 +1,31 @@
+name: Add Google verification meta tag
+on:
+  push:
+    paths:
+      - '.github/workflows/add-google-meta.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Insert verification meta tag
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          tag='<meta name="google-site-verification" content="xRHo_mvU4MoRKNP28szA_iZ0GLJD18J5v5umpca0Pa8" />'
+          if tag not in s:
+              anchor='<meta name="author" content="Dr. Kumar Digvijay">'
+              s=s.replace(anchor, anchor+'\n'+tag, 1)
+              p.write_text(s)
+          PY
+      - name: Commit change
+        run: |
+          git config user.name "Digu19"
+          git config user.email "librandigu@gmail.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Add Google Search Console meta verification"
+          git push
