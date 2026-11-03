@@ -1,0 +1,61 @@
+name: One-time research gallery update
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/add-research-gallery-once.yml'
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build gallery asset and update page
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+
+          # Decode the verified staged image.
+          src = Path('assets/gallery-phd-defense.jpg.b64')
+          if not src.exists():
+              raise SystemExit('gallery image data not found')
+          Path('assets/gallery-phd-defense.jpg').write_bytes(base64.b64decode(src.read_text().strip()))
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          old = 'A visual summary of the research continuum linking kidney transplantation, extracellular-vesicle phenotyping, biomarker interpretation and regenerative nephrology.'
+          new = 'A visual overview of the translational pathway connecting kidney transplantation, extracellular-vesicle phenotyping, biomarker integration, and regenerative nephrology.'
+          if old in s:
+              s = s.replace(old, new, 1)
+
+          css_anchor = '.mobile-toggle{display:none;'
+          gallery_css = '''.research-gallery{background:#fff}.gallery-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:22px;align-items:stretch}.gallery-feature{margin:0;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 14px 32px rgba(21,52,71,.07)}.gallery-feature img{display:block;width:100%;height:100%;min-height:430px;object-fit:cover;object-position:center 35%}.gallery-copy{display:flex;flex-direction:column;justify-content:center;padding:28px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,#f7fbfb,#eef7f8)}.gallery-copy h3{margin:0 0 10px;color:var(--navy);font-family:'Source Serif 4',serif;font-size:1.55rem}.gallery-copy p{margin:0;color:var(--muted)}.gallery-meta{margin-top:16px;font-size:.78rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--accent)}@media(max-width:940px){.gallery-grid{grid-template-columns:1fr}.gallery-feature img{min-height:320px}}\n'''
+          if gallery_css not in s:
+              s = s.replace(css_anchor, gallery_css + css_anchor, 1)
+
+          marker = '<section id="services">'
+          gallery_html = '''<section id="research-in-practice" class="research-gallery"><div class="wrap"><div class="section-head"><div><div class="kicker">Research in practice</div><h2>Research & academic engagement</h2></div><p>Selected moments from research presentations and academic work, illustrating the progression from doctoral renal-function studies to translational biomarker research.</p></div><div class="gallery-grid"><figure class="gallery-feature"><img src="assets/gallery-phd-defense.jpg" alt="Dr. Kumar Digvijay presenting doctoral research on renal functional reserve and urinary extracellular vesicles at the University of Turin"></figure><div class="gallery-copy"><h3>Doctoral research presentation · University of Turin</h3><p>Presentation of PhD work on renal functional reserve in living kidney donation and urinary extracellular-vesicle phenotyping. The image documents the academic setting in which the doctoral research was presented and discussed.</p><div class="gallery-meta">Kidney transplantation · RFR · Urinary EVs</div></div></div></div></section>'''
+          if 'id="research-in-practice"' not in s:
+              if marker not in s:
+                  raise SystemExit('services section marker not found')
+              s = s.replace(marker, gallery_html + marker, 1)
+
+          p.write_text(s, encoding='utf-8')
+
+          # Remove temporary staging files, including incomplete test assets.
+          for q in [Path('assets/gallery-phd-defense.jpg.b64'), Path('assets/gallery-biomarker-presentation.jpg.b64'), Path('assets/.gallery-biomarker.part1')]:
+              if q.exists():
+                  q.unlink()
+          PY
+      - name: Commit gallery update
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html assets/gallery-phd-defense.jpg
+          git add -u
+          git diff --cached --quiet && exit 0
+          git commit -m 'Add Research in Practice gallery and refine translational pathway copy'
+          git push
