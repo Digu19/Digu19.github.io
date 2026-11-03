@@ -1,0 +1,56 @@
+name: Final QC redesign
+
+on:
+  push:
+    paths:
+      - '.github/workflows/final-qc-redesign.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  redesign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply final QC redesign
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+
+          # Stronger visual hierarchy and distinct section identities.
+          css='''\n/* Final QC visual hierarchy */\n.hero h1{white-space:nowrap;font-size:clamp(2.85rem,5vw,5.25rem)}\n#research,#experience,#publications,#services{background:#ffffff}\n#methods,#thesis,#current-work,#service{background:linear-gradient(180deg,#f2f8f9 0%,#f8fbfb 100%)}\n#research .card{border-top:3px solid #17808d}\n#methods .card{border-top:3px solid #5d92a0}\n#service .card{border-top:3px solid #284f63}\n.section-head>div:first-child{position:relative;padding-left:16px}\n.section-head>div:first-child:before{content:\"\";position:absolute;left:0;top:2px;bottom:3px;width:3px;border-radius:3px;background:linear-gradient(180deg,var(--accent),#8cc5cc)}\n#contact{background:linear-gradient(135deg,#123544 0%,#164b5a 58%,#126b78 130%);border-top:0;color:#fff}\n#contact .kicker{color:#9ed9df}\n#contact .section-head h2,#contact .section-head p{color:#fff}\n#contact .section-head p{opacity:.85}\n#contact .contact-box{box-shadow:0 18px 45px rgba(4,24,32,.18)}\n#contact .service-note{background:#eef8f9;color:#526a75}\n.feedback-section{background:#edf6f7;border-top:0}\n.feedback-panel{display:grid;grid-template-columns:.8fr 1.2fr;gap:24px;align-items:start}\n.feedback-intro{padding:26px;border:1px solid #cee2e5;border-radius:18px;background:linear-gradient(180deg,#f8fcfc,#edf7f8)}\n.feedback-intro h3{margin:0 0 9px;color:var(--navy);font-family:'Source Serif 4',serif;font-size:1.45rem}\n.feedback-intro p{margin:0;color:var(--muted)}\n.feedback-form{background:#fff;border:1px solid var(--line);border-radius:17px;padding:24px;box-shadow:0 10px 28px rgba(21,52,71,.045);display:grid;gap:11px}\n.feedback-form input,.feedback-form select,.feedback-form textarea{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:10px;background:#fbfdfd;font:inherit;color:var(--ink)}\n.feedback-form textarea{min-height:120px;resize:vertical}\n.feedback-form button{padding:12px 14px;border:0;border-radius:10px;background:linear-gradient(135deg,var(--accent),#0c5863);color:#fff;font-weight:900;cursor:pointer}\n.mobile-toggle{display:none;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 11px;font-weight:800;color:var(--navy);cursor:pointer}\n@media(max-width:940px){nav .wrap{position:relative}.mobile-toggle{display:inline-flex}.navlinks{display:none;position:absolute;left:0;right:0;top:72px;flex-direction:column;gap:0;background:#fff;border:1px solid var(--line);border-radius:0 0 14px 14px;box-shadow:0 16px 30px rgba(21,52,71,.10);padding:8px 18px 14px}.navlinks.open{display:flex}.navlinks a{padding:10px 0;border-bottom:1px solid #eef3f4}.feedback-panel{grid-template-columns:1fr}.hero h1{white-space:normal}}\n@media(max-width:620px){.hero h1{font-size:3.05rem}}\n'''
+          if '/* Final QC visual hierarchy */' not in s:
+              s=s.replace('</style>',css+'\n</style>',1)
+
+          # Add mobile menu button.
+          old='<nav><div class="wrap"><div class="brand">DR. KUMAR <span>DIGVIJAY</span></div><div class="navlinks">'
+          new='<nav><div class="wrap"><div class="brand">DR. KUMAR <span>DIGVIJAY</span></div><button class="mobile-toggle" type="button" aria-label="Open navigation" aria-expanded="false">Menu</button><div class="navlinks">'
+          s=s.replace(old,new,1)
+
+          # Sharpen support/leadership terminology if needed.
+          s=s.replace('<h2>Scientific writing & research support</h2>','<h2>Research support & scientific writing</h2>',1)
+          s=s.replace('<h2>Editorial leadership & scientific service</h2>','<h2>Editorial leadership & academic service</h2>',1)
+
+          # Add private feedback section before footer.
+          feedback='''<section id="feedback" class="feedback-section"><div class="wrap"><div class="section-head"><div><div class="kicker">Website improvement</div><h2>Feedback & suggestions</h2></div><p>Brief feedback helps improve the clarity and usefulness of this website and Nephra. This channel is for website or AI-assistant feedback, not medical advice or formal project enquiries.</p></div><div class="feedback-panel"><div class="feedback-intro"><h3>Help improve the experience</h3><p>You can comment on website clarity, missing information, navigation, Nephra's answers or other aspects of the professional profile. Name and email are optional.</p></div><form class="feedback-form" action="https://formspree.io/f/xgaapjle" method="POST"><input type="hidden" name="submission_type" value="Website feedback"><input type="text" name="name" placeholder="Name (optional)"><input type="email" name="email" placeholder="Email (optional)"><select name="feedback_type" required><option value="">Feedback type</option><option>Website clarity / navigation</option><option>Nephra AI assistant</option><option>Research or publication information</option><option>Services / consultation information</option><option>Missing information</option><option>Other suggestion</option></select><textarea name="feedback" placeholder="Share your feedback or suggestion" required></textarea><input type="text" name="_gotcha" style="display:none"><button type="submit">Send feedback</button><div class="form-note">Feedback is delivered privately. For collaboration, consultation, fees, contracts or confidential matters, please use the Consultation & Professional Enquiries form above.</div></form></div></div></section>'''
+          if 'id="feedback"' not in s:
+              s=s.replace('<footer class="footer">',feedback+'\n<footer class="footer">',1)
+
+          # Add JS for mobile navigation without affecting Botpress.
+          js='''\n<script>\n(function(){\n  const btn=document.querySelector('.mobile-toggle');\n  const links=document.querySelector('.navlinks');\n  if(!btn||!links)return;\n  btn.addEventListener('click',function(){\n    const open=links.classList.toggle('open');\n    btn.setAttribute('aria-expanded',open?'true':'false');\n    btn.textContent=open?'Close':'Menu';\n  });\n  links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{links.classList.remove('open');btn.setAttribute('aria-expanded','false');btn.textContent='Menu';}));\n})();\n</script>\n'''
+          if "const btn=document.querySelector('.mobile-toggle')" not in s:
+              s=s.replace('<script src="https://cdn.botpress.cloud/webchat/v5.0/inject.js"></script>',js+'<script src="https://cdn.botpress.cloud/webchat/v5.0/inject.js"></script>',1)
+
+          p.write_text(s)
+          PY
+      - name: Commit final QC redesign
+        run: |
+          rm -f .github/workflows/final-qc-redesign.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/final-qc-redesign.yml
+          git commit -m "Final QC redesign with feedback and mobile navigation"
+          git push
