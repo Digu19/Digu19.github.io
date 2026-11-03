@@ -1,0 +1,31 @@
+name: Add grant enquiry option
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/add-grant-enquiry-option.yml']
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add enquiry option
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          old='<option>Translational nephrology / biomarker consulting</option><option>Other professional enquiry</option>'
+          new='<option>Translational nephrology / biomarker consulting</option><option>Project / grant-development support</option><option>Other professional enquiry</option>'
+          if 'Project / grant-development support</option>' not in s:
+              s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add grant development enquiry option" || exit 0
+          git push
