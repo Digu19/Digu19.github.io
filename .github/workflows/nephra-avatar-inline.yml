@@ -1,0 +1,33 @@
+name: One-time Nephra avatar inline
+
+on:
+  push:
+    paths:
+      - '.github/workflows/nephra-avatar-inline.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inline Nephra avatar
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          data='data:image/jpeg;base64,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'
+          s=s.replace('src="assets/nephra-avatar.jpg"',f'src="{data}"',1)
+          p.write_text(s)
+          PY
+      - name: Commit avatar fix
+        run: |
+          rm -f .github/workflows/nephra-avatar-inline.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/nephra-avatar-inline.yml
+          git commit -m "Embed Nephra avatar in contact section"
+          git push
