@@ -1,0 +1,34 @@
+name: Add Frontiers current work once
+on: [push]
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add Frontiers manuscript card
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = '<article class="manuscript"><span class="status">Submitted</span><h3>Extracorporeal Therapeutic Monitoring: A Framework for Response-Guided Blood Purification</h3><div class="authors">Kumar Digvijay · John A. Kellum · Tapas Kumar Sahoo · Claudio Ronco</div><div class="journal">Perspective · <em>Blood Purification</em></div></article></div></div></section>'
+          new = '<article class="manuscript"><span class="status">Submitted</span><h3>Extracorporeal Therapeutic Monitoring: A Framework for Response-Guided Blood Purification</h3><div class="authors">Kumar Digvijay · John A. Kellum · Tapas Kumar Sahoo · Claudio Ronco</div><div class="journal">Perspective · <em>Blood Purification</em></div></article><article class="manuscript"><span class="status">Under review</span><h3>Polymer Composites for Selective Removal of Pharmaceuticals from Hospital Wastewater: Design Lessons from Extracorporeal Blood Purification Sorbents</h3><div class="authors">Tapas K. Sahoo · Kumar Digvijay · Sananta K. Dash</div><div class="journal">Mini Review · <em>Frontiers in Materials</em> · Manuscript 2050478 · Received 2 Nov 2026</div></article></div></div></section>'
+          if old not in s:
+              raise SystemExit('Current-work anchor not found; no change made.')
+          s = s.replace(old, new, 1)
+          css = '#current-work .current-work{grid-template-columns:repeat(3,1fr)}\n@media(max-width:940px){#current-work .current-work{grid-template-columns:1fr}}\n'
+          if '#current-work .current-work{grid-template-columns:repeat(3,1fr)}' not in s:
+              s = s.replace('</style>', css + '</style>', 1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name "Digu19"
+          git config user.email "librandigu@gmail.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Add Frontiers manuscript to current work"
+          git push
