@@ -1,5 +1,8 @@
 name: Add Cloudflare analytics
 on:
+  push:
+    paths:
+      - '.github/workflows/add-cloudflare-analytics.yml'
   workflow_dispatch:
 permissions:
   contents: write
