@@ -1,0 +1,28 @@
+name: Add Cloudflare analytics
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add Cloudflare Web Analytics beacon
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          snippet = "<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{\"token\": \"06ce9f50eff941df957c4d3adb753e0a\"}'></script><!-- End Cloudflare Web Analytics -->"
+          if '06ce9f50eff941df957c4d3adb753e0a' not in s:
+              s = s.replace('</body>', snippet + '\n</body>')
+          p.write_text(s)
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "Digu19"
+          git config user.email "librandigu@gmail.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Add Cloudflare Web Analytics"
+          git push
