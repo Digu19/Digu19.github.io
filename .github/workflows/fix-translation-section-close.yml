@@ -1,0 +1,44 @@
+name: Fix translation pathway section closure
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-translation-section-close.yml'
+permissions:
+  contents: write
+jobs:
+  fix-html:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Close translation pathway section correctly
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = '</div></div>\n<section id="about">'
+          new = '</div></div></section>\n<section id="about">'
+          if old not in s:
+              raise SystemExit('Expected translation-map/about boundary not found')
+          s = s.replace(old, new, 1)
+          p.write_text(s)
+          PY
+      - name: Verify structure
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s = Path('index.html').read_text()
+          marker = '<section id="translation-map" class="translation-map">'
+          start = s.index(marker)
+          about = s.index('<section id="about">', start)
+          segment = s[start:about]
+          assert segment.rstrip().endswith('</section>'), 'translation-map section is not closed before About'
+          print('Translation pathway section closes correctly before About.')
+          PY
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Fix pathway section HTML structure"
+          git push
