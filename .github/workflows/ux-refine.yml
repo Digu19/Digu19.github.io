@@ -1,0 +1,59 @@
+name: One-time UX refinement
+
+on:
+  push:
+    paths:
+      - '.github/workflows/ux-refine.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  refine-site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refine homepage wording and layout
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+
+          # Hero: keep full name on one desktop line and slightly reduce maximum size.
+          s=s.replace(".hero h1{font-family:'Source Serif 4',serif;font-size:clamp(3.2rem,6.2vw,6rem);line-height:.95;letter-spacing:-.047em;color:var(--navy);margin:18px 0 12px}", ".hero h1{font-family:'Source Serif 4',serif;font-size:clamp(2.8rem,4.1vw,4rem);line-height:.98;letter-spacing:-.04em;color:var(--navy);margin:18px 0 12px;white-space:nowrap}")
+          s=s.replace('<h1>Dr. Kumar<br>Digvijay<small>Translational Nephrology & Biomarker Research Scientist</small></h1>', '<h1>Dr. Kumar Digvijay<small>Translational Nephrology & Biomarker Research Scientist</small></h1>')
+          s=s.replace('@media(max-width:620px){.wrap{width:min(var(--max),calc(100% - 26px))}.grid,.services,.metrics{grid-template-columns:1fr}.hero h1{font-size:3.4rem}.pub{grid-template-columns:1fr}.pub a{grid-column:1}}', '@media(max-width:620px){.wrap{width:min(var(--max),calc(100% - 26px))}.grid,.services,.metrics{grid-template-columns:1fr}.hero h1{font-size:3rem;white-space:normal}.pub{grid-template-columns:1fr}.pub a{grid-column:1}}')
+
+          # Navigation: distinguish research support, editorial service and consultation.
+          s=s.replace('<a href="#services">Services</a><a href="#service">Service</a><a href="#contact">Contact</a>', '<a href="#services">Research Support</a><a href="#service">Editorial</a><a href="#contact">Consultation</a>')
+
+          # Research support section.
+          s=s.replace('<div class="kicker">Professional support</div><h2>Scientific writing & research services</h2>', '<div class="kicker">Research support</div><h2>Scientific writing & research support</h2>')
+          s=s.replace('Independent support for academic, clinical and industry teams needing rigorous, publication-oriented help with writing, evidence synthesis, study documentation and translational research development. Pharma, biotech, CRO and MedTech collaborations are welcome where the scope is scientifically appropriate and transparent.', 'Focused scientific support for academic, clinical and industry teams requiring publication-oriented writing, evidence synthesis, study documentation or translational project development. Pharma, biotech, CRO and MedTech collaborations are considered where the scope is scientifically appropriate and transparent.')
+
+          # Editorial/service section.
+          s=s.replace('<div class="kicker">Scientific service</div><h2>Editorial & scientific service</h2>', '<div class="kicker">Academic contribution</div><h2>Editorial leadership & scientific service</h2>')
+          s=s.replace('Editorial work, peer review and scientific communication complement the research portfolio.', 'Editorial appointments, peer review, society activity and scientific communication reflect broader contribution to the academic and nephrology community.')
+
+          # Contact section -> consultation/enquiries.
+          s=s.replace('<div class="kicker">Private enquiries</div><h2>Contact & project enquiries</h2>', '<div class="kicker">Consultation & collaboration</div><h2>Consultation & professional enquiries</h2>')
+          s=s.replace('Ask Nephra for quick questions about my research, publications, doctoral work and scientific services, or use the private form for formal collaboration and project enquiries.', 'For research collaboration, translational nephrology or biomarker consultation, scientific-writing support, academic opportunities or industry enquiries, use the private form below. Nephra can answer quick questions about my public professional profile.')
+          s=s.replace('<h3>Research, consulting or scientific-writing enquiry</h3>', '<h3>Discuss a collaboration or consultation</h3>')
+          s=s.replace('Use this channel for academic, clinical or industry collaboration, pharma/biotech/CRO/MedTech enquiries, manuscript and scientific-writing support, study documentation, translational projects and professional opportunities.', 'This channel is for academic and clinical collaborations, translational nephrology or biomarker consultation, pharma/biotech/CRO/MedTech enquiries, scientific-writing support, study development and professional opportunities.')
+          s=s.replace('placeholder="Tell me briefly about your project or enquiry"', 'placeholder="Briefly describe your consultation, collaboration or enquiry"')
+          s=s.replace('<button type="submit">Send private enquiry</button>', '<button type="submit">Send consultation / enquiry</button>')
+
+          # Distinguish Nephra visually/textually from the formal enquiry route.
+          s=s.replace('<strong>Nephra · AI Research Assistant</strong><br>Nephra can answer questions about my public research profile, publications, doctoral work and scientific services. It does not accept projects, negotiate terms or make commitments on my behalf. Use the Nephra chat widget on this page for quick questions; use the private form for formal or confidential enquiries.', '<strong>Nephra · AI Research Assistant</strong><br>Use Nephra for quick questions about my public research profile, publications, doctoral work and scientific support areas. For consultation, collaboration, fees, contracts, confidential matters or formal opportunities, please use the private enquiry form.')
+
+          p.write_text(s)
+          PY
+      - name: Commit refinement
+        run: |
+          rm -f .github/workflows/ux-refine.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/ux-refine.yml
+          git commit -m "Refine hero and separate support, editorial and consultation sections"
+          git push
