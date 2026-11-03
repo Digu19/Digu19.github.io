@@ -1,0 +1,50 @@
+name: One-time website update
+
+on:
+  push:
+    paths:
+      - '.github/workflows/site-update.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch homepage
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+
+          # Add thesis navigation item.
+          s = s.replace('<a href="#experience">Experience</a><a href="#publications">Publications</a>', '<a href="#experience">Experience</a><a href="#thesis">Thesis</a><a href="#publications">Publications</a>', 1)
+
+          thesis = '''<section id="thesis"><div class="wrap"><div class="section-head"><div><div class="kicker">Doctoral research</div><h2>PhD thesis & key outcomes</h2></div><p>University of Turin · PhD in Medical Physiopathology · 2018–2022. Doctoral research integrated renal functional reserve testing with longitudinal urinary extracellular-vesicle phenotyping in living kidney donors before and after nephrectomy.</p></div><div class="current-work"><article class="manuscript"><span class="status">University of Turin</span><h3>Renal Function Reserve (RFR) in Living Donor Renal Transplantation (LDRT) and Phenotypic Characterization of Urinary Extracellular Vesicles (uEVs) Pre and Post Nephrectomy</h3><div class="authors">Supervisor: Prof. Benedetta Bussolati · Tutor: Prof. Stefania Bruno</div><div class="journal">Prospective living-donor study combining oral protein-load renal stress testing with pre-nephrectomy and day-7 post-nephrectomy urinary EV phenotyping.</div><div class="actions"><a class="btn primary" href="https://iris.unito.it/handle/2318/2017589" target="_blank" rel="noopener">University repository ↗</a></div></article><article class="manuscript"><span class="status">Key outcomes</span><h3>Renal adaptation and urinary-EV phenotyping after living kidney donation</h3><div class="journal"><strong>28</strong> living kidney donors enrolled; renal stress testing showed a significant GFR response to protein load (<strong>p=0.0001</strong>) with reported RFR of <strong>29.5 (4.2–100) mL/min/1.73 m²</strong>.<br><br>Urinary EVs were profiled before nephrectomy and again 7 days later. Post-nephrectomy increases in progenitor-associated <strong>CD133</strong> and <strong>CD24</strong> signals were observed, supporting their investigation as candidate indicators of renal adaptation and regenerative responses rather than validated clinical biomarkers.</div></article></div></div></section>'''
+          if 'id="thesis"' not in s:
+              s = s.replace('<section id="publications">', thesis + '\n<section id="publications">', 1)
+
+          s = s.replace('Visitors can contact me privately without my personal email address being displayed publicly.', 'Ask Nephra for quick questions about my research, publications, doctoral work and scientific services, or use the private form for formal collaboration and project enquiries.', 1)
+
+          contact_marker = '<p>Use this channel for academic, clinical or industry collaboration, pharma/biotech/CRO/MedTech enquiries, manuscript and scientific-writing support, study documentation, translational projects and professional opportunities.</p>'
+          nephra_note = contact_marker + '<div class="service-note"><strong>Nephra · AI Research Assistant</strong><br>Nephra can answer questions about my public research profile, publications, doctoral work and scientific services. It does not accept projects, negotiate terms or make commitments on my behalf. Use the Nephra chat widget on this page for quick questions; use the private form for formal or confidential enquiries.</div>'
+          if 'Nephra · AI Research Assistant' not in s:
+              s = s.replace(contact_marker, nephra_note, 1)
+
+          embed = '''\n<script src="https://cdn.botpress.cloud/webchat/v5.0/inject.js"></script>\n<script src="https://files.bpcontent.cloud/2026/11/03/10/20261103103741-DBYPEP89.js" defer></script>\n'''
+          if 'DBYPEP89.js' not in s:
+              s = s.replace('</body>', embed + '</body>', 1)
+
+          p.write_text(s)
+          PY
+      - name: Commit website update
+        run: |
+          rm -f .github/workflows/site-update.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/site-update.yml
+          git commit -m "Add doctoral research section and Nephra webchat"
+          git push
