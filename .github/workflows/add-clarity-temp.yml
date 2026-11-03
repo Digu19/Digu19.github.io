@@ -1,0 +1,38 @@
+name: Add Clarity once
+on:
+  push:
+    paths:
+      - '.github/workflows/add-clarity-temp.yml'
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add Microsoft Clarity
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          snippet = '''<!-- Microsoft Clarity -->
+<script>
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i+"?ref=bwt";
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "z7wz29ceto");
+</script>
+<!-- End Microsoft Clarity -->'''
+          if 'z7wz29ceto' not in s:
+              s = s.replace('</head>', snippet + '\n</head>')
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Digu19"
+          git config user.email "librandigu@gmail.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Add Microsoft Clarity analytics"
+          git push
