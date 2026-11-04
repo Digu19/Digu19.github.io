@@ -7,6 +7,12 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://digu19.github.io/services.html</loc>
+    <lastmod>2026-11-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://digu19.github.io/gallery.html</loc>
     <lastmod>2026-11-03</lastmod>
     <changefreq>monthly</changefreq>
