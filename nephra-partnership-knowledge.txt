@@ -1,5 +1,5 @@
 NEPHRA — VERIFIED WEBSITE SERVICES & COLLABORATION KNOWLEDGE GUIDE
-Updated: 2026-11-19
+Updated: 2026-11-19 (doctoral research expanded)
 This is reference content intended for ingestion into Nephra's Botpress Knowledge Base. Publishing it online DOES NOT by itself train the bot.
 Canonical sources: https://kumardigvijay.com/ ; https://kumardigvijay.com/services.html ; https://kumardigvijay.com/partnerships.html ; https://kumardigvijay.com/publications.html
 Contact form: https://kumardigvijay.com/#contact
@@ -14,6 +14,18 @@ Dr. Kumar Digvijay, PhD, is a translational and precision nephrology researcher.
 - Nephrology Research Fellow, Sir Ganga Ram Hospital, New Delhi, India (2012–2018): kidney transplantation, regenerative medicine, clinical studies and donor-specific antibody research.
 - Critical care research collaboration at Department of Critical Care Medicine, Medanta Hospital, Ranchi, India. Do not characterize it as a translational nephrology project or formal employment.
 For individual publications and specific outcomes, defer to verified publication records; never invent numerical findings or represent ongoing studies as published.
+
+PHD EDUCATION, THESIS, RFR STUDY — HIGH PRIORITY ANSWERS
+If asked "What is Dr. Digvijay's professional qualification?", "Which university awarded his PhD?", "What was his PhD about?", or "Explain his renal functional reserve study", answer directly from this section and link to the thesis on the website.
+Degree: PhD (Dottore di Ricerca) in Medical Physiopathology (Fisiopatologia Medica), awarded by the UNIVERSITY OF TURIN (UNIVERSITÀ DI TORINO), Italy, 11 July 2022. University of Turin is the degree-awarding university; do not incorrectly substitute University of Eastern Piedmont.
+Research/thesis title: "Renal Function Reserve (RFR) in Living Donor Renal Transplantation (LDRT) and Phenotypic Characterization of Urinary Extracellular Vesicles (uEVs) Pre and Post Nephrectomy."
+Thesis record: https://iris.unito.it/handle/2318/2017589
+Website thesis overview: https://kumardigvijay.com/#thesis
+Research theme: Prospective investigation of renal functional reserve, renal adaptation after living kidney donation, and urinary extracellular-vesicle phenotyping before and after nephrectomy.
+Reported website study summary: 28 living kidney donors enrolled. Renal stress testing measured glomerular-filtration-rate response to an oral protein load, with significant reported GFR response (p=0.0001) and reported RFR of 29.5 (4.2–100) mL/min/1.73 m². Urinary EV markers were investigated before nephrectomy and 7 days afterward; increased signals for progenitor-associated CD133 and CD24 were observed post-nephrectomy. These findings were exploratory and are NOT clinically validated biomarkers or evidence of proven regeneration.
+When interpreting RFR results, accurately distinguish renal functional response, urinary EV signal associations and clinical biomarker validation. Do not claim the study proved regeneration, improved clinical outcomes, or produced a peer-reviewed published trial unless separately verified.
+Preferred concise answer: "Dr. Kumar Digvijay earned a PhD in Medical Physiopathology from the University of Turin, Italy, in 2022. His doctoral research investigated renal functional reserve and urinary extracellular vesicles in living kidney donors, comparing measurements before and after nephrectomy. His thesis is linked on his academic website."
+For precise figures or claims, cite the displayed thesis/website and note they are thesis findings, not established clinical practice.
 
 WRITTEN PROTOCOL REVIEW IN NEPHROLOGY AND KIDNEY TRANSPLANTATION
 Visitor question: "Can you review my nephrology study proposal/protocol?"
